@@ -18,6 +18,7 @@ import re
 from database import init_db, get_db
 import models
 import schemas
+import extractors
 from rag_engine import LocalVectorIndex, DocumentParser, SemanticChunker
 from audio_studio import PodcastDialogueGenerator
 from studio_engine import StudioEngine, StudioValidationError
@@ -1984,6 +1985,71 @@ def regenerate_notebook_artifact(
 # ============================================================================
 # Existing Research & Studio Endpoints
 # ============================================================================
+
+# ============================================================================
+# Document & Media Extraction Endpoints
+# ============================================================================
+
+class ExtractUrlPayload(BaseModel):
+    url: str
+
+class ExtractYoutubePayload(BaseModel):
+    url: str
+
+@app.post("/api/extract/url", tags=["extract"])
+def api_extract_url(payload: ExtractUrlPayload):
+    """
+    Scrapes and extracts clean, readable markdown/text and page title from any webpage URL.
+    """
+    try:
+        return extractors.extract_website(payload.url)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@app.post("/api/extract/youtube", tags=["extract"])
+def api_extract_youtube(payload: ExtractYoutubePayload):
+    """
+    Extracts video title, channel, and full timestamped transcript from a YouTube video URL.
+    """
+    try:
+        return extractors.extract_youtube(payload.url)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@app.post("/api/extract/file", tags=["extract"])
+async def api_extract_file(file: UploadFile = File(...)):
+    """
+    Parses and extracts text from Word documents (.docx), E-Books (.epub), PDFs, or text files.
+    """
+    filename = file.filename or "uploaded_file"
+    ext = filename.split(".")[-1].lower() if "." in filename else ""
+    content_bytes = await file.read()
+    
+    try:
+        if ext == "docx":
+            return extractors.extract_docx(content_bytes, filename)
+        elif ext == "epub":
+            return extractors.extract_epub(content_bytes, filename)
+        elif ext == "pdf":
+            return extractors.extract_pdf(content_bytes, filename)
+        elif ext in ["txt", "md", "markdown", "csv", "json", "log", "rtf", "tsv"]:
+            text = content_bytes.decode("utf-8", errors="replace")
+            return {
+                "title": filename,
+                "content": text,
+                "type": ext,
+                "word_count": len(text.split())
+            }
+        else:
+            text = content_bytes.decode("utf-8", errors="replace")
+            return {
+                "title": filename,
+                "content": text,
+                "type": "txt",
+                "word_count": len(text.split())
+            }
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 @app.get("/api/health")
 async def health_check():

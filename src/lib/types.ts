@@ -1,4 +1,4 @@
-export type SourceType = 'pdf' | 'txt' | 'md' | 'url' | 'audio' | 'note' | 'youtube' | 'link' | 'image_ocr';
+export type SourceType = 'pdf' | 'txt' | 'md' | 'url' | 'audio' | 'note' | 'youtube' | 'link' | 'image_ocr' | 'docx' | 'epub';
 
 export interface SourceCreateInput {
   title: string;
@@ -58,6 +58,7 @@ export interface SourceDoc {
   createdAt: string;
   topics?: string[];
   notebookId?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface Citation {

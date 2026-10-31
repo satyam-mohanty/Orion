@@ -23,8 +23,13 @@ import {
   X,
   ChevronDown,
   RotateCw,
-  AlertCircle
+  AlertCircle,
+  Download,
+  Lightbulb,
+  Compass,
+  Zap
 } from 'lucide-react';
+import { generateRAGAnswer, generateSuggestedFollowUps } from '../lib/local-rag';
 import { NotificationBanner, NotificationState } from './NotificationBanner';
 import { MarkdownRenderer } from './MarkdownRenderer';
 
@@ -69,6 +74,7 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
   const [hoveredCitation, setHoveredCitation] = useState<Citation | null>(null);
   const [popoverPos, setPopoverPos] = useState<{ x: number; y: number } | null>(null);
   const [notice, setNotice] = useState<NotificationState | null>(null);
+  const [failedQueries, setFailedQueries] = useState<Record<string, string>>({});
   const [isConfirmingDeleteConv, setIsConfirmingDeleteConv] = useState(false);
   const [isDeletingConversation, setIsDeletingConversation] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -371,6 +377,88 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length, isSending]);
 
+  // Fallback to built-in Native Local RAG when Ollama is offline
+  const handleFallbackSynthesis = async (placeholderMsgId: string) => {
+    const origQuery = failedQueries[placeholderMsgId];
+    if (!origQuery) return;
+    setIsSending(true);
+
+    try {
+      const res = await generateRAGAnswer(
+        origQuery,
+        sources,
+        messages,
+        ollamaUrl,
+        selectedModel
+      );
+
+      setMessages(prev =>
+        prev.map(m =>
+          m.id === placeholderMsgId
+            ? {
+                ...m,
+                content: res.text,
+                citations: res.citations,
+                suggestedFollowUps: res.suggestedFollowUps,
+                model: 'Built-in Native Local RAG',
+              }
+            : m
+        )
+      );
+
+      setFailedQueries(prev => {
+        const copy = { ...prev };
+        delete copy[placeholderMsgId];
+        return copy;
+      });
+    } catch (fallbackErr: any) {
+      setNotice({
+        type: 'error',
+        message: `Local synthesis error: ${fallbackErr.message || 'Failed to synthesize'}`,
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  // Export full conversation transcript to Markdown
+  const handleExportConversationMarkdown = () => {
+    if (messages.length === 0) return;
+    const title = activeConversation?.title || 'Orion Conversation';
+    let md = `# Orion Research Notebook — ${title}\n\n`;
+    md += `*Exported on ${new Date().toLocaleString()}*\n`;
+    const selected = sources.filter(s => s.isSelected);
+    if (selected.length > 0) {
+      md += `*Referenced Sources (${selected.length}): ${selected.map(s => s.title).join(', ')}*\n\n`;
+    }
+    md += `---\n\n`;
+
+    messages.forEach((msg) => {
+      if (msg.role === 'user') {
+        md += `### 👤 User (${msg.timestamp})\n${msg.content}\n\n`;
+      } else {
+        md += `### 🤖 Orion (${msg.model || 'Local Model'} • ${msg.timestamp})\n${msg.content}\n\n`;
+        if (msg.citations && msg.citations.length > 0) {
+          md += `**Citations:**\n`;
+          msg.citations.forEach((c) => {
+            md += `- [${c.index}] **${c.sourceTitle}**: "${c.snippet}"\n`;
+          });
+          md += `\n`;
+        }
+      }
+    });
+
+    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-zA-Z0-9_-]/g, '_')}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   // Send message to active conversation
   const handleSendMessage = async (queryToSend?: string) => {
     const query = (queryToSend || inputQuery).trim();
@@ -450,6 +538,7 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
                   content: response.answer,
                   citations: response.citations,
                   model: response.model,
+                  suggestedFollowUps: generateSuggestedFollowUps(query, response.citations || []),
                 }
               : m
           )
@@ -477,6 +566,7 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
         friendlyError = '⚠️ **Backend Disconnected**\n\nUnable to connect to the Orion backend at `http://localhost:8000`. Please ensure the FastAPI server is running.';
       }
 
+      setFailedQueries(prev => ({ ...prev, [assistantMsgId]: query }));
       setMessages(prev =>
         prev.map(m =>
           m.id === assistantMsgId
@@ -771,8 +861,18 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
           </button>
 
           <button
+            onClick={handleExportConversationMarkdown}
+            disabled={messages.length === 0}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-hover hover:bg-surface-borderHover border border-surface-border text-xs font-medium text-inherit transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Export conversation to Markdown (.md)"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Export</span>
+          </button>
+
+          <button
             onClick={handleCreateNewConversation}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-hover hover:bg-surface-borderHover border border-surface-border text-xs font-medium text-inherit transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-accent text-white hover:bg-accentHover text-xs font-medium transition-colors shadow-xs"
             title="Start a new conversation"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -784,22 +884,57 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
       {/* Messages Stream */}
       <div className="flex-1 min-h-0 min-w-0 overflow-y-auto px-4 sm:px-6 md:px-8 py-4 sm:py-5 space-y-4">
         {isLoadingMessages && messages.length === 0 ? (
-          <div className="flex items-center justify-center h-48 opacity-50 text-xs">
-            <span className="animate-pulse">Loading conversation history...</span>
+          <div className="flex items-center justify-center gap-2 h-48 text-foregroundMuted text-xs">
+            <RotateCw className="w-3.5 h-3.5 animate-spin" />
+            <span>Loading conversation history...</span>
           </div>
         ) : showWelcomeMessage ? (
-          /* Initial Welcome Message */
-          <div className="flex flex-col items-start">
-            <div className="max-w-[85%] rounded-2xl p-4 bg-surface-panel border border-surface-border text-inherit shadow-sm">
-              <div className="flex items-center justify-between gap-3 mb-1.5 text-xs font-medium opacity-50">
-                <span>Orion</span>
-                <span className="text-[10px] font-mono">Ready</span>
+          /* Initial Welcome Message & Research Starters */
+          <div className="flex flex-col items-start space-y-4 max-w-2xl">
+            <div className="w-full rounded-2xl p-5 bg-surface-panel border border-surface-border text-inherit shadow-xs">
+              <div className="flex items-center justify-between gap-3 mb-2 text-xs font-medium opacity-60">
+                <span className="flex items-center gap-1.5 font-semibold text-accent">
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  Orion Research Assistant
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-base border border-surface-border">Ready</span>
               </div>
-              <div className="text-inherit text-sm leading-relaxed whitespace-pre-line font-sans opacity-90">
+              <p className="text-sm leading-relaxed opacity-90 mb-4">
                 {sources.length === 0
-                  ? 'Add your source documents on the left to start your research.'
-                  : `${activeCount} source document${activeCount === 1 ? '' : 's'} active in this notebook. Ask any question to retrieve grounded answers with inline citations.`}
-              </div>
+                  ? 'Drop or add source documents on the left to initiate grounded research and synthesis.'
+                  : `${activeCount} source document${activeCount === 1 ? '' : 's'} active in this notebook. Ask any inquiry to retrieve grounded evidence with verifiable citations.`}
+              </p>
+
+              {sources.length > 0 && (
+                <div className="space-y-2 pt-2 border-t border-surface-border/50">
+                  <span className="text-[11px] font-mono text-foregroundMuted uppercase tracking-wider block">
+                    Research Starters:
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {[
+                      { icon: <FileText className="w-3.5 h-3.5 text-accent" />, label: "Executive Summary", query: "Provide an executive summary of the primary findings across the active sources." },
+                      { icon: <Compass className="w-3.5 h-3.5 text-accent" />, label: "Key Methodologies", query: "What operational methodologies, architectures, or frameworks are detailed?" },
+                      { icon: <Lightbulb className="w-3.5 h-3.5 text-accent" />, label: "Constraints & Trade-offs", query: "What critical constraints, risks, and trade-offs are documented in these sources?" },
+                      { icon: <Zap className="w-3.5 h-3.5 text-accent" />, label: "Study Assessment Questions", query: "Generate 3 deep conceptual study questions with grounded answers based on these materials." },
+                    ].map((st, sIdx) => (
+                      <button
+                        key={sIdx}
+                        onClick={() => handleSendMessage(st.query)}
+                        disabled={isSending}
+                        className="flex items-center gap-2 p-2.5 rounded-xl bg-surface-base hover:bg-surface-hover border border-surface-border/70 hover:border-accent/40 text-left text-xs text-foreground transition-all group"
+                      >
+                        <span className="shrink-0 p-1.5 rounded-lg bg-surface-hover group-hover:bg-accent/10 transition-colors">
+                          {st.icon}
+                        </span>
+                        <div className="min-w-0">
+                          <div className="font-semibold truncate text-[11px] text-foreground">{st.label}</div>
+                          <div className="text-[10px] text-foregroundMuted truncate">{st.query}</div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -814,7 +949,7 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
                 className={`max-w-[85%] rounded-2xl p-4 transition-all ${
                   msg.role === 'user'
                     ? 'bg-surface-hover border border-surface-borderHover text-inherit'
-                    : 'bg-surface-panel border border-surface-border text-inherit shadow-sm'
+                    : 'bg-surface-panel border border-surface-border text-inherit shadow-xs'
                 }`}
               >
                 {/* Message Header */}
@@ -825,8 +960,8 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
 
                 {/* Message Content */}
                 {msg.role === 'assistant' && !msg.content ? (
-                  <div className="flex items-center gap-2.5 text-xs opacity-70 py-1 font-sans">
-                    <span className="w-2 h-2 rounded-full bg-foreground-base animate-pulse"></span>
+                  <div className="flex items-center gap-2.5 text-xs text-foregroundMuted py-1 font-sans">
+                    <RotateCw className="w-3.5 h-3.5 animate-spin text-accent" />
                     <span>Searching sources and generating grounded answer...</span>
                   </div>
                 ) : msg.role === 'user' ? (
@@ -888,6 +1023,49 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
                   </div>
                 )}
 
+                {/* Fallback to Native Local RAG Button if Model Offline */}
+                {msg.role === 'assistant' && failedQueries[msg.id] && (
+                  <div className="mt-3 p-3 rounded-xl bg-accent/10 border border-accent/30 space-y-2">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-accent">
+                      <Zap className="w-4 h-4" />
+                      <span>Synthesize with Native Local RAG Engine</span>
+                    </div>
+                    <p className="text-[11px] text-foregroundSubtle leading-relaxed">
+                      Ollama is currently unreachable, but Orion can synthesize this answer directly using its built-in on-device RAG engine without external daemons.
+                    </p>
+                    <button
+                      onClick={() => handleFallbackSynthesis(msg.id)}
+                      disabled={isSending}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent text-white text-xs font-medium hover:bg-accentHover transition-colors shadow-xs"
+                    >
+                      {isSending ? <RotateCw className="w-3.5 h-3.5 animate-spin" /> : <Zap className="w-3.5 h-3.5" />}
+                      <span>Synthesize Offline Now</span>
+                    </button>
+                  </div>
+                )}
+
+                {/* Suggested Follow-Up Prompts */}
+                {msg.role === 'assistant' && msg.suggestedFollowUps && msg.suggestedFollowUps.length > 0 && (
+                  <div className="mt-3 pt-2.5 border-t border-surface-border/50 space-y-1.5">
+                    <span className="text-[10px] font-mono text-foregroundMuted uppercase tracking-wider block">
+                      Suggested follow-ups:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {msg.suggestedFollowUps.map((fu, fIdx) => (
+                        <button
+                          key={fIdx}
+                          onClick={() => handleSendMessage(fu)}
+                          disabled={isSending}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-base hover:bg-surface-hover border border-surface-border hover:border-accent/40 text-xs text-foregroundSubtle hover:text-foreground text-left transition-colors"
+                        >
+                          <Compass className="w-3 h-3 text-accent shrink-0" />
+                          <span>{fu}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Action Toolbar */}
                 {msg.role === 'assistant' && msg.content && (
                   <div className="mt-3 pt-2 border-t border-surface-border flex items-center justify-end gap-1">
@@ -915,7 +1093,7 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
                       {savedNoteId === msg.id ? (
                         <Check className="w-4 h-4 text-emerald-500" />
                       ) : isSavingNoteId === msg.id ? (
-                        <RotateCw className="w-4 h-4 animate-spin text-indigo-400" />
+                        <RotateCw className="w-4 h-4 animate-spin text-accent" />
                       ) : (
                         <BookmarkPlus className="w-4 h-4" />
                       )}
@@ -1007,7 +1185,7 @@ export const ChatWorkspace: React.FC<ChatWorkspaceProps> = ({
               <button
                 type="submit"
                 disabled={!inputQuery.trim() || isSending}
-                className="p-1.5 rounded-xl bg-foreground-base text-surface-base hover:opacity-90 disabled:opacity-20 transition-all flex items-center justify-center shrink-0 cursor-pointer disabled:cursor-not-allowed"
+                className="p-2 rounded-xl bg-accent text-white hover:bg-accentHover disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center shrink-0 cursor-pointer shadow-xs"
                 title="Send message"
                 aria-label="Send message"
               >

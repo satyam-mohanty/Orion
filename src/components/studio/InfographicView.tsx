@@ -5,7 +5,6 @@ import { StudioArtifact, SourceDoc, InfographicData } from '../../lib/types';
 import { 
   PieChart, 
   Download, 
-  Sparkles, 
   TrendingUp, 
   CheckCircle, 
   Layers, 
@@ -170,7 +169,7 @@ export const InfographicView: React.FC<InfographicViewProps> = ({
       {/* Header with Export SVG Button */}
       <div className="flex items-center justify-between pb-2 border-b border-surface-border">
         <div className="flex items-center gap-1.5 opacity-90">
-          <PieChart className="w-4 h-4 text-indigo-400" />
+          <PieChart className="w-4 h-4 text-accent" />
           <span className="font-semibold text-sm truncate max-w-[190px]">
             {artifact.title}
           </span>
@@ -180,18 +179,18 @@ export const InfographicView: React.FC<InfographicViewProps> = ({
           type="button"
           onClick={handleExportSVG}
           disabled={isExporting}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-panel hover:bg-surface-hover border border-surface-border text-xs font-medium transition-colors opacity-85 hover:opacity-100 shadow-sm disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-panel hover:bg-surface-hover border border-surface-border text-xs font-medium transition-colors opacity-85 hover:opacity-100 shadow-sm disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           title="Download vector SVG layout"
           aria-label="Export Infographic as SVG"
         >
           {exportSuccess ? (
             <>
-              <Check className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-emerald-400">Exported</span>
+              <Check className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="text-emerald-500">Exported</span>
             </>
           ) : isExporting ? (
             <>
-              <RotateCw className="w-3.5 h-3.5 animate-spin text-indigo-400" />
+              <RotateCw className="w-3.5 h-3.5 animate-spin text-accent" />
               <span>Exporting...</span>
             </>
           ) : (
@@ -216,8 +215,8 @@ export const InfographicView: React.FC<InfographicViewProps> = ({
 
       {/* Subtitle / Scope Banner */}
       {data.subtitle && (
-        <div className="p-2.5 rounded-xl bg-gradient-to-r from-indigo-500/10 via-surface-panel to-transparent border border-indigo-500/20 text-xs opacity-90">
-          <p className="font-medium text-[11px] leading-relaxed text-indigo-200">
+        <div className="p-2.5 rounded-xl bg-surface-panel border border-surface-border text-xs text-foreground opacity-90">
+          <p className="font-medium text-[11px] leading-relaxed">
             {data.subtitle}
           </p>
         </div>
@@ -236,7 +235,7 @@ export const InfographicView: React.FC<InfographicViewProps> = ({
                 className="p-3 rounded-xl bg-surface-panel border border-surface-border space-y-1 hover:border-surface-borderHover transition-colors"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-base font-bold text-indigo-400">
+                  <span className="text-base font-bold text-accent">
                     {stat.value}
                   </span>
                   {stat.source_ref && (
@@ -263,7 +262,7 @@ export const InfographicView: React.FC<InfographicViewProps> = ({
       {data.key_takeaways && data.key_takeaways.length > 0 && (
         <div className="space-y-1.5">
           <span className="text-[10px] font-semibold uppercase tracking-wider opacity-60 flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-amber-400" />
+            <CheckCircle className="w-3 h-3 text-accent" />
             <span>Essential Takeaways</span>
           </span>
           <div className="space-y-1.5">
@@ -272,7 +271,7 @@ export const InfographicView: React.FC<InfographicViewProps> = ({
                 key={idx}
                 className="p-2.5 rounded-xl bg-surface-panel border border-surface-border flex items-start gap-2 text-xs leading-relaxed opacity-90"
               >
-                <CheckCircle className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
                 <p>{takeaway}</p>
               </div>
             ))}
@@ -284,7 +283,7 @@ export const InfographicView: React.FC<InfographicViewProps> = ({
       {data.process_steps && data.process_steps.length > 0 && (
         <div className="space-y-1.5">
           <span className="text-[10px] font-semibold uppercase tracking-wider opacity-60 flex items-center gap-1">
-            <GitBranch className="w-3 h-3 text-indigo-400" />
+            <GitBranch className="w-3 h-3 text-accent" />
             <span>Operational Flow</span>
           </span>
           <div className="space-y-2">
@@ -293,7 +292,7 @@ export const InfographicView: React.FC<InfographicViewProps> = ({
                 key={idx}
                 className="p-2.5 rounded-xl bg-surface-panel border border-surface-border flex items-start gap-2.5"
               >
-                <div className="w-5 h-5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 flex items-center justify-center font-bold text-[10px] flex-shrink-0">
+                <div className="w-5 h-5 rounded-full bg-accent/15 text-accent border border-accent/30 flex items-center justify-center font-bold text-[10px] flex-shrink-0">
                   {st.step || idx + 1}
                 </div>
                 <div className="space-y-0.5">

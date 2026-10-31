@@ -1,16 +1,16 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { 
-  Settings, 
-  Sun, 
-  Moon, 
-  BookOpen, 
-  ChevronDown, 
-  Plus, 
-  Check, 
-  RotateCw, 
-  AlertCircle 
+import {
+  Settings,
+  Sun,
+  Moon,
+  BookOpen,
+  ChevronDown,
+  Plus,
+  Check,
+  RotateCw,
+  Server
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Notebook } from '../lib/types';
@@ -149,8 +149,8 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Backend Error / Offline Notice */}
               {notebookError && (
-                <div className="p-2 mb-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[11px] flex items-start gap-1.5">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <div className="p-2 mb-2 rounded-lg bg-surface-hover border border-surface-border text-foregroundSubtle text-[11px] flex items-start gap-1.5">
+                  <Server className="w-4 h-4 text-accent" />
                   <div className="flex-1">
                     <p className="font-medium">Backend Unavailable</p>
                     <p className="opacity-80 text-[10px] leading-tight mt-0.5">
@@ -163,8 +163,8 @@ export const Header: React.FC<HeaderProps> = ({
               {/* Notebooks List */}
               <div className="max-h-56 overflow-y-auto space-y-0.5 py-1">
                 {isLoadingNotebooks && notebooks.length === 0 ? (
-                  <div className="p-3 text-center text-xs opacity-50 flex items-center justify-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-foreground-base animate-pulse" />
+                  <div className="p-3 text-center text-xs text-foregroundMuted flex items-center justify-center gap-2">
+                    <RotateCw className="w-3 h-3 animate-spin" />
                     <span>Loading notebooks...</span>
                   </div>
                 ) : notebooks.length === 0 ? (
@@ -196,7 +196,7 @@ export const Header: React.FC<HeaderProps> = ({
                           )}
                         </div>
                         {isSelected && (
-                          <Check className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+                          <Check className="w-3.5 h-3.5 shrink-0 text-accent" />
                         )}
                       </button>
                     );
@@ -249,7 +249,7 @@ export const Header: React.FC<HeaderProps> = ({
                       <button
                         type="submit"
                         disabled={!newTitle.trim() || isSubmitting}
-                        className="px-2.5 py-0.5 rounded bg-zinc-900 text-white dark:bg-white dark:text-black font-medium text-[11px] hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="px-2.5 py-1 rounded-lg bg-accent text-white font-medium text-[11px] hover:bg-accentHover disabled:opacity-35 disabled:cursor-not-allowed transition-colors"
                       >
                         {isSubmitting ? 'Creating...' : 'Create'}
                       </button>
@@ -275,8 +275,8 @@ export const Header: React.FC<HeaderProps> = ({
           onClick={onOpenSettings}
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs transition-all ${
             isOllamaConnected
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20'
-              : 'bg-zinc-500/10 border-surface-border text-zinc-600 dark:text-zinc-400 hover:bg-surface-hover'
+              ? 'bg-surface-panel border-surface-border text-foreground hover:bg-surface-hover shadow-xs'
+              : 'bg-surface-base border-surface-border text-foregroundMuted hover:bg-surface-hover'
           }`}
           title={
             isOllamaConnected
@@ -291,7 +291,7 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <span
             className={`w-2 h-2 rounded-full shrink-0 ${
-              isOllamaConnected ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-400 dark:bg-zinc-500'
+              isOllamaConnected ? 'bg-emerald-600 dark:bg-emerald-500' : 'bg-surface-borderHover'
             }`}
           />
           <span className="font-mono text-[11px] font-medium truncate max-w-[120px] hidden sm:inline">

@@ -34,7 +34,7 @@ export const SourceViewerModal: React.FC<SourceViewerModalProps> = ({
         <div className="p-4 md:p-5 border-b border-surface-border flex items-center justify-between bg-surface-panel">
           <div className="flex items-center gap-3 min-w-0 pr-3">
             <div className="p-2 rounded-xl bg-surface-base border border-surface-border text-inherit opacity-90 shrink-0">
-              <FileText className="w-5 h-5 text-indigo-400" />
+              <FileText className="w-5 h-5 text-accent" />
             </div>
             <div className="min-w-0">
               <h2 className="text-base font-semibold text-inherit truncate max-w-md md:max-w-xl">

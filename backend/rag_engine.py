@@ -231,11 +231,27 @@ class LocalVectorIndex:
                 f"- **Answer**: The section *{retrieved_chunks[0]['metadata'].get('section')}* [1]."
             )
         else:
+            primary_src = retrieved_chunks[0].get('source_title', 'Document')
+            sec_0 = retrieved_chunks[0].get('metadata', {}).get('section') or "Foundational Principles"
+            
+            bullet_points = []
+            for idx, c in enumerate(retrieved_chunks, 1):
+                clean_passage = c['text'].strip().replace('\r\n', '\n')
+                lines = [line.strip() for line in clean_passage.split('\n') if len(line.strip()) > 20 and not line.strip().startswith('#')]
+                point_text = lines[0] if lines else clean_passage[:150]
+                sec_label = c.get('metadata', {}).get('section') or 'Key Insight'
+                bullet_points.append(f"- **{c.get('source_title', 'Source')}** ({sec_label}): {point_text} [{idx}]")
+                
+            bullet_str = "\n".join(bullet_points)
+            
             answer = (
-                f"Here is the synthesized answer based on your selected sources:\n\n"
-                f"{retrieved_chunks[0]['text']}\n\n"
-                f"Furthermore, *{retrieved_chunks[-1]['source_title']}* notes: \"{retrieved_chunks[-1]['text'][:160]}...\" [{len(citations)}]\n\n"
-                f"All conclusions are directly grounded in your document repository."
+                f"### 📌 Executive Summary\n\n"
+                f"Based on analysis of *{primary_src}* and active source passages, the evidence outlines: "
+                f"{retrieved_chunks[0]['text'][:220].strip()}... [1]\n\n"
+                f"### 🔬 Grounded Evidence Breakdown\n\n"
+                f"{bullet_str}\n\n"
+                f"### 💡 Key Takeaway\n\n"
+                f"All conclusions are directly grounded in your document repository. Review citation markers [1] through [{len(citations)}] to inspect the original context."
             )
             
         return {

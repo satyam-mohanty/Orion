@@ -2,7 +2,10 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
-VALID_SOURCE_TYPES = {"pdf", "txt", "md", "image_ocr", "url", "youtube", "note"}
+VALID_SOURCE_TYPES = {
+    "pdf", "txt", "md", "image_ocr", "url", "youtube", "note", 
+    "docx", "epub", "link", "image", "audio"
+}
 
 
 # ============================================================================

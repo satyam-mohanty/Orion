@@ -16,26 +16,43 @@ module.exports = {
           hover: 'var(--color-surface-hover)',
           border: 'var(--color-surface-border)',
           borderHover: 'var(--color-surface-borderHover)',
-        }
+        },
+        accent: {
+          DEFAULT: 'var(--color-accent)',
+          hover: 'var(--color-accentHover)',
+          subtle: 'var(--color-accentSubtle)',
+          foreground: '#ffffff',
+        },
+        foreground: {
+          DEFAULT: 'var(--color-foreground)',
+          base: 'var(--color-foreground)',
+          muted: 'var(--color-foregroundMuted)',
+          subtle: 'var(--color-foregroundSubtle)',
+        },
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: [
+          'Inter',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'sans-serif',
+        ],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
-      animation: {
-        'fade-in': 'fadeIn 0.2s ease-out',
-        'slide-up': 'slideUp 0.3s ease-out',
+      borderRadius: {
+        DEFAULT: '0.75rem',
+        sm: '0.5rem',
+        lg: '0.875rem',
+        xl: '1rem',
+        '2xl': '1.25rem',
       },
-      keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-        slideUp: {
-          '0%': { transform: 'translateY(10px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
-        }
-      }
+      boxShadow: {
+        subtle: '0 1px 2px rgba(0, 0, 0, 0.04)',
+        card: '0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03)',
+        popover: '0 4px 12px rgba(0, 0, 0, 0.08)',
+      },
     },
   },
   plugins: [],

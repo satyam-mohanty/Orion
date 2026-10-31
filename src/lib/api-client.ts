@@ -75,6 +75,7 @@ function mapSourceResponseToSourceDoc(res: BackendSourceResponse): SourceDoc {
     isSelected: res.is_selected,
     createdAt: res.created_at ? res.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
     topics: (res.meta_info?.topics as string[]) || [res.source_type.toUpperCase()],
+    metadata: res.meta_info || undefined,
     chunks: (res.chunks || []).map(c => ({
       id: c.id,
       sourceId: c.source_id,
@@ -264,6 +265,84 @@ export async function deleteSource(
       method: 'DELETE',
     }
   );
+}
+
+// ============================================================================
+// Media & Document Extraction Endpoints
+// ============================================================================
+
+/**
+ * Scrapes and extracts readable article text and title from any webpage URL.
+ */
+export async function extractWebsiteContent(
+  url: string
+): Promise<{ title: string; content: string; url: string; word_count: number }> {
+  return request<{ title: string; content: string; url: string; word_count: number }>(
+    '/extract/url',
+    {
+      method: 'POST',
+      body: JSON.stringify({ url }),
+    }
+  );
+}
+
+/**
+ * Extracts video title, channel, and full timestamped transcript from a YouTube video URL.
+ */
+export async function extractYouTubeContent(
+  url: string
+): Promise<{ title: string; content: string; channel: string; url: string; video_id?: string; word_count: number }> {
+  return request<{ title: string; content: string; channel: string; url: string; video_id?: string; word_count: number }>(
+    '/extract/youtube',
+    {
+      method: 'POST',
+      body: JSON.stringify({ url }),
+    }
+  );
+}
+
+/**
+ * Extracts text from Word documents (.docx), EPUB e-books, or text files using the backend parser.
+ */
+export async function extractFileContent(
+  file: File
+): Promise<{ title: string; content: string; type: string; word_count: number }> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch('/api/py/extract/file', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorJson = await res.json().catch(() => ({}));
+    throw new ApiError(errorJson.detail || 'Failed to extract content from file', res.status);
+  }
+
+  return res.json();
+}
+
+/**
+ * Extracts OCR text from an image file using server-side Tesseract.js.
+ */
+export async function extractImageOcr(
+  file: File
+): Promise<{ text: string; confidence: number }> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch('/api/ocr', {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorJson = await res.json().catch(() => ({}));
+    throw new ApiError(errorJson.error || 'Failed to perform OCR on image', res.status);
+  }
+
+  return res.json();
 }
 
 // ============================================================================

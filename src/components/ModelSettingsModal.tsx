@@ -55,7 +55,7 @@ export const ModelSettingsModal: React.FC<ModelSettingsModalProps> = ({
         <div className="p-4 border-b border-surface-border flex items-center justify-between bg-surface-panel">
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 rounded-xl bg-surface-base border border-surface-border text-inherit">
-              <Sliders className="w-4 h-4 text-indigo-400" />
+              <Sliders className="w-4 h-4 text-accent" />
             </div>
             <div>
               <h2 className="text-sm font-semibold text-inherit">
@@ -163,7 +163,7 @@ export const ModelSettingsModal: React.FC<ModelSettingsModalProps> = ({
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-1.5 rounded-xl bg-zinc-900 hover:bg-black text-white dark:bg-white dark:text-black dark:hover:bg-zinc-100 font-medium text-xs transition-colors shadow-sm"
+            className="px-4 py-1.5 rounded-xl bg-accent hover:bg-accentHover text-white font-medium text-xs transition-colors shadow-xs"
           >
             Save Settings
           </button>

@@ -253,7 +253,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         return (
           <code
             key={key}
-            className="px-1.5 py-0.5 rounded text-[12px] font-mono bg-surface-base border border-surface-border text-indigo-400 dark:text-indigo-300 font-medium"
+            className="px-1.5 py-0.5 rounded text-[12px] font-mono bg-surface-base border border-surface-border text-foreground font-medium"
           >
             {codeContent}
           </code>
@@ -299,7 +299,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
             href={linkMatch[2]}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 transition-colors"
+            className="text-accent hover:underline underline-offset-2 transition-colors font-medium"
           >
             {linkMatch[1]}
           </a>
@@ -360,7 +360,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                   <button
                     type="button"
                     onClick={() => handleCopyCode(block.code, idx)}
-                    className="flex items-center gap-1 hover:text-foreground-base transition-colors opacity-80 hover:opacity-100"
+                    className="flex items-center gap-1 hover:text-foreground transition-colors opacity-80 hover:opacity-100"
                     title="Copy code block"
                     aria-label="Copy code block"
                   >
@@ -412,7 +412,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
             return (
               <blockquote
                 key={idx}
-                className="my-2 pl-3 py-1 border-l-2 border-indigo-500/60 italic opacity-85 text-xs bg-indigo-500/5 rounded-r-lg"
+                className="my-2 pl-3 py-1 border-l-2 border-accent/60 italic opacity-85 text-xs bg-accent/5 rounded-r-lg"
               >
                 {renderInline(block.text, `quote-${idx}`)}
               </blockquote>

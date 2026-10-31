@@ -6,7 +6,6 @@ import {
   FileText, 
   Copy, 
   Check, 
-  Sparkles, 
   ExternalLink, 
   AlertCircle,
   Lightbulb,
@@ -82,7 +81,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
             key={idx}
             onClick={() => handleCitationClick(citIdx)}
             title={`View evidence [${citIdx}] in source`}
-            className="inline-flex items-center px-1 py-0 mx-0.5 rounded text-[10px] font-mono font-semibold bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/40 border border-indigo-500/40 transition-colors align-baseline"
+            className="inline-flex items-center px-1.5 py-0 mx-0.5 rounded text-[10px] font-mono font-semibold bg-accent/10 text-accent hover:bg-accent/20 border border-accent/30 transition-colors align-baseline"
           >
             [{citIdx}]
           </button>
@@ -97,7 +96,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
       {/* Report Header */}
       <div className="flex items-center justify-between pb-2 border-b border-surface-border">
         <div className="flex items-center gap-1.5 opacity-90">
-          <FileText className="w-4 h-4 text-indigo-400" />
+          <FileText className="w-4 h-4 text-accent" />
           <span className="font-semibold text-sm truncate max-w-[200px]">
             {artifact.title}
           </span>
@@ -110,8 +109,8 @@ export const ReportView: React.FC<ReportViewProps> = ({
         >
           {copied ? (
             <>
-              <Check className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-emerald-400">Copied!</span>
+              <Check className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="text-emerald-500">Copied!</span>
             </>
           ) : (
             <>
@@ -125,8 +124,8 @@ export const ReportView: React.FC<ReportViewProps> = ({
       {/* Executive Summary Card */}
       {data.summary && (
         <div className="p-3.5 rounded-xl bg-surface-panel border border-surface-border space-y-1.5">
-          <div className="text-[11px] font-semibold text-indigo-400 uppercase tracking-wider flex items-center gap-1">
-            <Sparkles className="w-3 h-3" />
+          <div className="text-[11px] font-semibold text-accent uppercase tracking-wider flex items-center gap-1">
+            <FileText className="w-3 h-3" />
             <span>Executive Summary</span>
           </div>
           <p className="text-xs leading-relaxed opacity-90">
@@ -160,7 +159,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
             key={idx}
             className="p-3.5 rounded-xl bg-surface-panel border border-surface-border space-y-2"
           >
-            <h4 className="font-semibold text-xs opacity-95 text-indigo-300">
+            <h4 className="font-semibold text-xs opacity-95 text-foreground">
               {sec.heading}
             </h4>
             <div className="text-xs leading-relaxed opacity-85 space-y-2">
@@ -185,8 +184,8 @@ export const ReportView: React.FC<ReportViewProps> = ({
 
       {/* Strategic Inferences & Analysis Callout (Distinguished from source facts) */}
       {data.inferences_and_strategic_notes && (
-        <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/30 space-y-1.5">
-          <div className="flex items-center gap-1.5 text-amber-400 font-semibold text-[11px] uppercase tracking-wider">
+        <div className="p-3.5 rounded-xl bg-surface-card border border-surface-border space-y-1.5">
+          <div className="flex items-center gap-1.5 text-accent font-semibold text-[11px] uppercase tracking-wider">
             <Lightbulb className="w-3.5 h-3.5" />
             <span>Strategic Inference & Deductions</span>
           </div>
@@ -213,7 +212,7 @@ export const ReportView: React.FC<ReportViewProps> = ({
                 className="p-1.5 rounded hover:bg-surface-hover cursor-pointer flex items-center justify-between transition-colors opacity-80 hover:opacity-100"
               >
                 <div className="flex items-center gap-1.5 truncate">
-                  <span className="font-mono text-indigo-400 font-bold">[{c.index}]</span>
+                  <span className="font-mono text-accent font-bold">[{c.index}]</span>
                   <span className="truncate max-w-[200px]">{c.sourceTitle}</span>
                 </div>
                 <ExternalLink className="w-3 h-3 opacity-50 flex-shrink-0" />

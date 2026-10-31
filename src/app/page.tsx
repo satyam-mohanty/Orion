@@ -14,7 +14,7 @@ import { listNotebooks, createNotebook, listSources } from '../lib/api-client';
 import { 
   BookOpen, 
   MessageSquare, 
-  Sparkles, 
+  LayoutGrid, 
   PanelLeftOpen, 
   PanelRightOpen 
 } from 'lucide-react';
@@ -303,12 +303,12 @@ export default function OrionHome() {
             onClick={() => setActiveTab('studio')}
             className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all ${
               activeTab === 'studio'
-                ? 'bg-surface-panel shadow-xs text-inherit border border-surface-border font-semibold text-indigo-400'
+                ? 'bg-surface-panel shadow-xs border border-surface-border font-semibold text-accent'
                 : 'opacity-65 hover:opacity-100 text-inherit border border-transparent'
             }`}
             aria-selected={activeTab === 'studio'}
           >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+            <LayoutGrid className="w-3.5 h-3.5 text-accent" />
             <span>Studio</span>
           </button>
         </div>
@@ -332,7 +332,7 @@ export default function OrionHome() {
               title="Expand Sources sidebar"
               aria-label="Expand Sources sidebar"
             >
-              <PanelLeftOpen className="w-4 h-4 text-indigo-400" />
+              <PanelLeftOpen className="w-4 h-4 text-foregroundMuted" />
             </button>
             <span className="text-[10px] font-mono opacity-50 uppercase tracking-widest [writing-mode:vertical-rl] rotate-180 mt-4 select-none">
               Sources ({sources.length})
@@ -436,7 +436,7 @@ export default function OrionHome() {
               title="Expand Studio panel"
               aria-label="Expand Studio panel"
             >
-              <PanelRightOpen className="w-4 h-4 text-indigo-400" />
+              <PanelRightOpen className="w-4 h-4 text-foregroundMuted" />
             </button>
             <span className="text-[10px] font-mono opacity-50 uppercase tracking-widest [writing-mode:vertical-rl] mt-4 select-none">
               Studio Forge

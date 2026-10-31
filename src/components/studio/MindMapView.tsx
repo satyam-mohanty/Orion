@@ -364,7 +364,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
       {/* Header Bar */}
       <div className="flex items-center justify-between text-xs pb-1 border-b border-surface-border">
         <div className="flex items-center gap-1.5 opacity-80">
-          <Share2 className="w-3.5 h-3.5 text-indigo-400" />
+          <Share2 className="w-3.5 h-3.5 text-accent" />
           <span className="font-semibold truncate max-w-[170px] sm:max-w-[200px]">
             {artifact.title}
           </span>
@@ -376,18 +376,18 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
             type="button"
             onClick={handleExportSVG}
             disabled={isExporting}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-surface-panel hover:bg-surface-hover border border-surface-border text-xs font-medium transition-colors opacity-80 hover:opacity-100 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-surface-panel hover:bg-surface-hover border border-surface-border text-xs font-medium transition-colors opacity-80 hover:opacity-100 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             title="Download vector SVG layout"
             aria-label="Export Mind Map as SVG"
           >
             {exportSuccess ? (
               <>
-                <Check className="w-3 h-3 text-emerald-400" />
-                <span className="text-[11px] text-emerald-400">Exported</span>
+                <Check className="w-3 h-3 text-emerald-500" />
+                <span className="text-[11px] text-emerald-500">Exported</span>
               </>
             ) : isExporting ? (
               <>
-                <RotateCw className="w-3 h-3 animate-spin text-indigo-400" />
+                <RotateCw className="w-3 h-3 animate-spin text-accent" />
                 <span className="text-[11px]">Exporting...</span>
               </>
             ) : (
@@ -402,7 +402,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
             <button
               type="button"
               onClick={() => setZoom(prev => clampZoom(prev + 0.15))}
-              className="p-1 hover:bg-surface-hover rounded text-xs opacity-75 hover:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500"
+              className="p-1 hover:bg-surface-hover rounded text-xs opacity-75 hover:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               title="Zoom In"
               aria-label="Zoom in mind map"
             >
@@ -414,7 +414,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
             <button
               type="button"
               onClick={() => setZoom(prev => clampZoom(prev - 0.15))}
-              className="p-1 hover:bg-surface-hover rounded text-xs opacity-75 hover:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500"
+              className="p-1 hover:bg-surface-hover rounded text-xs opacity-75 hover:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               title="Zoom Out"
               aria-label="Zoom out mind map"
             >
@@ -423,7 +423,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
             <button
               type="button"
               onClick={handleReset}
-              className="p-1 hover:bg-surface-hover rounded text-xs opacity-75 hover:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500"
+              className="p-1 hover:bg-surface-hover rounded text-xs opacity-75 hover:opacity-100 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
               title="Reset Canvas View"
               aria-label="Reset mind map canvas view"
             >
@@ -496,7 +496,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
                     y2={e.toY}
                     stroke="currentColor"
                     className={`transition-colors duration-200 ${
-                      isConnected ? 'text-indigo-500 dark:text-indigo-400 stroke-[2]' : 'text-zinc-400 dark:text-zinc-600/50 stroke-[1.2]'
+                      isConnected ? 'text-accent stroke-[2]' : 'text-surface-borderHover stroke-[1.2]'
                     }`}
                     markerEnd="url(#arrow)"
                   />
@@ -505,7 +505,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
                       x={e.midX}
                       y={e.midY - 4}
                       fill="currentColor"
-                      className="text-[9px] font-mono fill-zinc-600 dark:fill-zinc-400 select-none opacity-80 text-anchor-middle"
+                      className="text-[9px] font-mono fill-foregroundMuted select-none opacity-80 text-anchor-middle"
                       textAnchor="middle"
                     >
                       {e.label}
@@ -548,10 +548,10 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
                     className={`transition-all duration-200 ${
                       isRoot
                         ? isSelected
-                          ? 'fill-indigo-600 stroke-indigo-300 stroke-2'
-                          : 'fill-indigo-600 dark:fill-indigo-900/90 stroke-indigo-400 dark:stroke-indigo-500/80 stroke-1.5'
+                          ? 'fill-accent stroke-accentHover stroke-2'
+                          : 'fill-accent stroke-accent stroke-1.5'
                         : isSelected
-                        ? 'fill-indigo-50 dark:fill-surface-hover stroke-indigo-500 dark:stroke-indigo-400 stroke-2'
+                        ? 'fill-accent/15 dark:fill-accent/25 stroke-accent stroke-2'
                         : 'fill-surface-base stroke-surface-border group-hover:stroke-surface-borderHover stroke-1'
                     }`}
                     filter={isSelected ? 'url(#glow)' : undefined}
@@ -565,8 +565,8 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
                       isRoot
                         ? 'fill-white font-semibold'
                         : isSelected
-                        ? 'fill-indigo-700 dark:fill-indigo-200 font-semibold'
-                        : 'fill-zinc-800 dark:fill-zinc-200'
+                        ? 'fill-accent font-semibold'
+                        : 'fill-foreground'
                     }`}
                   >
                     {node.label.length > (isRoot ? 20 : 15)
@@ -590,7 +590,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
         <div className="p-3.5 rounded-xl bg-surface-panel border border-surface-border space-y-2 animate-fade-in text-xs">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 font-semibold text-xs opacity-95">
-              <Layers className="w-3.5 h-3.5 text-indigo-400" />
+              <Layers className="w-3.5 h-3.5 text-accent" />
               <span>{selectedNode.label}</span>
             </div>
             {selectedNode.category && (
@@ -606,7 +606,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
 
           {selectedNode.snippet && (
             <div className="p-2 rounded-lg bg-surface-base border border-surface-border/50 text-[11px] space-y-1">
-              <div className="text-[9px] font-semibold text-indigo-400 uppercase tracking-wider flex items-center justify-between">
+              <div className="text-[9px] font-semibold text-accent uppercase tracking-wider flex items-center justify-between">
                 <span>Source Grounding</span>
                 {selectedNode.source_title && (
                   <span className="opacity-70 font-mono normal-case">{selectedNode.source_title}</span>
@@ -625,7 +625,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
             <button
               type="button"
               onClick={() => handleOpenSource(selectedNode)}
-              className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+              className="inline-flex items-center gap-1 text-accent hover:underline font-medium transition-colors"
             >
               <span>View in Source Document</span>
               <ExternalLink className="w-3 h-3" />

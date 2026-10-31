@@ -24,12 +24,14 @@ import {
   Trash2, 
   RotateCw, 
   AlertCircle, 
-  Sparkles,
+  LayoutGrid,
   Layers,
   ChevronDown,
   X,
   History,
-  PanelRightClose
+  PanelRightClose,
+  Download,
+  Check
 } from 'lucide-react';
 import { NotificationBanner } from './NotificationBanner';
 
@@ -205,6 +207,90 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
   };
 
 
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopyArtifact = () => {
+    if (!activeArtifact) return;
+    const content = activeArtifact.structured_content;
+    let textToCopy = '';
+    if (activeArtifact.artifact_type === 'report') {
+      textToCopy = content?.markdown || content?.summary || '';
+    } else if (activeArtifact.artifact_type === 'audio_overview') {
+      textToCopy = (content?.dialogue || []).map((l: any) => `${l.speaker}: ${l.text}`).join('\n\n');
+    } else {
+      textToCopy = JSON.stringify(content, null, 2);
+    }
+    navigator.clipboard.writeText(textToCopy);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const handleExportArtifactMarkdown = () => {
+    if (!activeArtifact) return;
+    let md = '';
+    const title = activeArtifact.title || 'Studio Artifact';
+
+    if (activeArtifact.artifact_type === 'report') {
+      const report = activeArtifact.structured_content;
+      md = report?.markdown || `# ${title}\n\n## Summary\n${report?.summary || ''}\n\n## Key Findings\n${(report?.key_findings || []).map((f: string) => `- ${f}`).join('\n')}`;
+    } else if (activeArtifact.artifact_type === 'flashcards') {
+      const cards = activeArtifact.structured_content?.cards || [];
+      md = `# Flashcard Deck: ${title}\n\n`;
+      cards.forEach((c: any, i: number) => {
+        md += `### Card ${i + 1}: ${c.question}\n**Answer**: ${c.answer}\n*Category: ${c.category || 'General'}*\n\n`;
+      });
+    } else if (activeArtifact.artifact_type === 'audio_overview') {
+      const lines = activeArtifact.structured_content?.dialogue || [];
+      md = `# Orion Studio Audio Overview: ${title}\n\n`;
+      lines.forEach((l: any) => {
+        md += `**${l.speaker}** (${l.startTime}s): ${l.text}\n\n`;
+      });
+    } else if (activeArtifact.artifact_type === 'mindmap') {
+      const nodes = activeArtifact.structured_content?.nodes || [];
+      const edges = activeArtifact.structured_content?.edges || [];
+      md = `# Mind Map: ${title}\n\n\`\`\`mermaid\ngraph TD\n`;
+      nodes.forEach((n: any) => {
+        md += `  ${n.id}["${n.label}"]\n`;
+      });
+      edges.forEach((e: any) => {
+        md += `  ${e.from} -->|${e.label || ''}| ${e.to}\n`;
+      });
+      md += `\`\`\`\n\n### Concept Details\n`;
+      nodes.forEach((n: any) => {
+        md += `- **${n.label}** (${n.category || 'Concept'}): ${n.description || ''}\n`;
+      });
+    } else if (activeArtifact.artifact_type === 'infographic') {
+      const info = activeArtifact.structured_content;
+      md = `# Infographic: ${title}\n*${info?.subtitle || ''}*\n\n`;
+      if (info?.stats) {
+        md += `## Metrics & Key Stats\n`;
+        info.stats.forEach((s: any) => {
+          md += `- **${s.label}**: ${s.value} — ${s.context} ${s.source_ref || ''}\n`;
+        });
+        md += `\n`;
+      }
+      if (info?.key_takeaways) {
+        md += `## Takeaways\n`;
+        info.key_takeaways.forEach((t: string) => {
+          md += `- ${t}\n`;
+        });
+        md += `\n`;
+      }
+    } else {
+      md = JSON.stringify(activeArtifact.structured_content, null, 2);
+    }
+
+    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-zA-Z0-9_-]/g, '_')}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleToolClick = (type: StudioToolType) => {
     setActiveToolType(type);
     setError(null);
@@ -254,35 +340,35 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
       id: 'audio_overview' as StudioToolType,
       label: 'Audio Overview',
       icon: AudioLines,
-      color: 'text-sky-400',
+      color: 'text-foregroundMuted group-hover:text-accent',
       description: 'Dual-host dialogue podcast'
     },
     {
       id: 'flashcards' as StudioToolType,
       label: 'Flashcards',
       icon: Copy,
-      color: 'text-indigo-400',
+      color: 'text-foregroundMuted group-hover:text-accent',
       description: 'Study questions & answers'
     },
     {
       id: 'mindmap' as StudioToolType,
       label: 'Mind Map',
       icon: Share2,
-      color: 'text-purple-400',
+      color: 'text-foregroundMuted group-hover:text-accent',
       description: 'Visual concept relationships'
     },
     {
       id: 'report' as StudioToolType,
       label: 'Reports',
       icon: FileText,
-      color: 'text-emerald-400',
+      color: 'text-foregroundMuted group-hover:text-accent',
       description: 'Executive research summary'
     },
     {
       id: 'infographic' as StudioToolType,
       label: 'Infographic',
       icon: PieChart,
-      color: 'text-amber-400',
+      color: 'text-foregroundMuted group-hover:text-accent',
       description: 'Evidence-backed visual data'
     }
   ];
@@ -292,7 +378,7 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
       {/* Studio Header */}
       <div className="p-3.5 border-b border-surface-border flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-indigo-400" />
+          <LayoutGrid className="w-4 h-4 text-accent" />
           <span className="text-sm font-semibold tracking-tight opacity-90">
             Studio Forge
           </span>
@@ -310,7 +396,7 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
               onClick={() => setShowHistory(!showHistory)}
               className={`px-2 py-1 rounded-lg border text-xs font-medium flex items-center gap-1 transition-colors ${
                 showHistory
-                  ? 'bg-surface-hover border-surface-borderHover text-indigo-300'
+                  ? 'bg-surface-hover border-accent/40 text-accent'
                   : 'bg-surface-base hover:bg-surface-hover border-surface-border opacity-75 hover:opacity-100'
               }`}
               title="Toggle Saved Artifacts History"
@@ -370,7 +456,7 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
                     !hasSources || isGenerating
                       ? 'bg-surface-base border-surface-border opacity-45 cursor-not-allowed'
                       : isActive
-                      ? 'bg-surface-hover border-indigo-500/60 shadow-sm opacity-100 ring-1 ring-indigo-500/20'
+                      ? 'bg-surface-hover border-accent/60 shadow-xs opacity-100 ring-1 ring-accent/20'
                       : 'bg-surface-base border-surface-border hover:border-surface-borderHover hover:bg-surface-hover cursor-pointer opacity-85 hover:opacity-100'
                   }`}
                 >
@@ -418,7 +504,7 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
                     }}
                     className={`p-2 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
                       isSelected
-                        ? 'bg-surface-hover border-indigo-500/50 text-indigo-300'
+                        ? 'bg-surface-hover border-accent/50 text-accent'
                         : 'bg-surface-panel border-surface-border hover:bg-surface-hover opacity-80 hover:opacity-100'
                     }`}
                   >
@@ -489,8 +575,8 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
 
         {/* Generation Spinner State */}
         {isGenerating && (
-          <div className="p-8 rounded-2xl bg-surface-panel border border-surface-border flex flex-col items-center justify-center gap-3 text-center animate-pulse">
-            <RotateCw className="w-6 h-6 animate-spin text-indigo-400" />
+          <div className="p-8 rounded-2xl bg-surface-panel border border-surface-border flex flex-col items-center justify-center gap-3 text-center">
+            <RotateCw className="w-5 h-5 animate-spin text-accent" />
             <div className="space-y-1">
               <p className="font-semibold text-xs opacity-90">
                 Synthesizing {activeToolType?.replace('_', ' ').toUpperCase()}...
@@ -506,23 +592,39 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
         {!isGenerating && activeArtifact && (
           <div className="pt-2 border-t border-surface-border animate-fade-in space-y-3">
             {/* Quick Actions Bar */}
-            <div className="flex items-center justify-between text-xs pb-1">
+            <div className="flex items-center justify-between text-xs pb-1 flex-wrap gap-2">
               <span className="text-[10px] uppercase font-mono opacity-50 tracking-wider">
                 Active Artifact: {activeArtifact.artifact_type.replace('_', ' ')}
               </span>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={handleCopyArtifact}
+                  className="p-1.5 rounded-lg bg-surface-base hover:bg-surface-hover border border-surface-border text-foregroundSubtle hover:text-foreground transition-colors cursor-pointer"
+                  title="Copy artifact text"
+                >
+                  {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+
+                <button
+                  onClick={handleExportArtifactMarkdown}
+                  className="p-1.5 rounded-lg bg-surface-base hover:bg-surface-hover border border-surface-border text-foregroundSubtle hover:text-foreground transition-colors cursor-pointer"
+                  title="Export artifact to Markdown (.md)"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                </button>
+
                 <button
                   onClick={() => {
                     setPromptTargetType(activeArtifact.artifact_type as StudioToolType);
                     setCustomTitle(`New ${activeArtifact.title}`);
                     setIsPromptModalOpen(true);
                   }}
-                  className="px-2 py-1 rounded-lg bg-surface-base hover:bg-surface-hover border border-surface-border text-[11px] font-medium flex items-center gap-1 transition-colors opacity-80 hover:opacity-100"
+                  className="px-2 py-1 rounded-lg bg-surface-base hover:bg-surface-hover border border-surface-border text-[11px] font-medium flex items-center gap-1 transition-colors text-foregroundSubtle hover:text-foreground cursor-pointer"
                   title="Generate a new variant with custom prompt"
                 >
                   <Plus className="w-3 h-3" />
-                  <span>Generate New</span>
+                  <span>New</span>
                 </button>
 
                 {confirmDeleteArtifactId === activeArtifact.id ? (
@@ -633,7 +735,7 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
         {/* Empty State when no artifacts exist yet */}
         {!isGenerating && !activeArtifact && (
           <div className="text-center py-12 px-4 text-inherit opacity-60 text-xs space-y-2 border border-dashed border-surface-border rounded-2xl">
-            <Sparkles className="w-8 h-8 mx-auto opacity-30 text-indigo-400" />
+            <LayoutGrid className="w-7 h-7 mx-auto opacity-30 text-foregroundMuted" />
             <div className="font-semibold text-xs opacity-90">Studio Ready</div>
             <p className="text-[11px] opacity-70 max-w-[220px] mx-auto">
               Select any tool above to synthesize flashcards, mind maps, reports, infographics, or dual-host podcasts grounded in your active notebook sources.
@@ -668,7 +770,7 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
                   value={customTitle}
                   onChange={(e) => setCustomTitle(e.target.value)}
                   placeholder="e.g. Memory Architecture Study Deck"
-                  className="w-full px-3 py-1.5 rounded-xl bg-surface-base border border-surface-border text-xs focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-1.5 rounded-xl bg-surface-base border border-surface-border text-xs focus:outline-none focus:border-accent"
                 />
               </div>
 
@@ -681,7 +783,7 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
                   onChange={(e) => setFocusPrompt(e.target.value)}
                   placeholder="e.g. Focus specifically on cache coherence and virtual memory translation."
                   rows={3}
-                  className="w-full px-3 py-2 rounded-xl bg-surface-base border border-surface-border text-xs focus:outline-none focus:border-indigo-500 resize-none"
+                  className="w-full px-3 py-2 rounded-xl bg-surface-base border border-surface-border text-xs focus:outline-none focus:border-accent resize-none"
                 />
               </div>
             </div>
@@ -695,7 +797,7 @@ export const StudioPanel: React.FC<StudioPanelProps> = ({
               </button>
               <button
                 onClick={() => handleGenerate(promptTargetType, customTitle, focusPrompt)}
-                className="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-sm transition-colors"
+                className="px-3.5 py-1.5 rounded-xl bg-accent hover:bg-accentHover text-white font-medium text-xs shadow-sm transition-colors"
               >
                 Generate
               </button>

@@ -8,7 +8,7 @@ import {
   RotateCw, 
   CheckCircle2, 
   HelpCircle, 
-  Sparkles, 
+  Layers, 
   BookOpen, 
   Shuffle,
   ExternalLink
@@ -147,7 +147,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
       {/* Deck Header & Progress Bar */}
       <div className="flex items-center justify-between text-xs">
         <div className="flex items-center gap-1.5 opacity-80">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <Layers className="w-3.5 h-3.5 text-accent" />
           <span className="font-semibold truncate max-w-[190px]">
             {artifact.title}
           </span>
@@ -156,7 +156,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
           <button
             type="button"
             onClick={handleShuffle}
-            className="p-1.5 rounded-lg hover:bg-surface-hover opacity-60 hover:opacity-100 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            className="p-1.5 rounded-lg hover:bg-surface-hover opacity-60 hover:opacity-100 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             title="Shuffle Deck"
             aria-label="Shuffle flashcards"
           >
@@ -171,7 +171,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
       {/* Progress Line */}
       <div className="w-full bg-surface-panel h-1.5 rounded-full overflow-hidden border border-surface-border">
         <div
-          className="bg-indigo-500 h-full transition-all duration-300 rounded-full"
+          className="bg-accent h-full transition-all duration-300 rounded-full"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
@@ -188,9 +188,9 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
             handleToggleFlip();
           }
         }}
-        className={`relative min-h-[220px] rounded-2xl p-5 border cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base ${
+        className={`relative min-h-[220px] rounded-2xl p-5 border cursor-pointer transition-all duration-300 flex flex-col justify-between shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-base ${
           isFlipped
-            ? 'bg-gradient-to-br from-surface-hover to-surface-panel border-indigo-500/50'
+            ? 'bg-gradient-to-br from-surface-hover to-surface-panel border-accent/40'
             : 'bg-surface-panel border-surface-border hover:border-surface-borderHover'
         }`}
       >
@@ -227,7 +227,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
                       e.stopPropagation();
                       handleOpenSource();
                     }}
-                    className="flex items-center gap-0.5 text-indigo-400 hover:underline focus:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500 rounded"
+                    className="flex items-center gap-0.5 text-accent hover:underline focus:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded"
                     aria-label="View evidence in source document"
                   >
                     Evidence <ExternalLink className="w-2.5 h-2.5" />
@@ -263,7 +263,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
         <button
           type="button"
           onClick={handlePrev}
-          className="p-2 rounded-xl bg-surface-panel hover:bg-surface-hover border border-surface-border text-xs transition-colors flex items-center gap-1 opacity-80 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="p-2 rounded-xl bg-surface-panel hover:bg-surface-hover border border-surface-border text-xs transition-colors flex items-center gap-1 opacity-80 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           title="Previous card (ArrowLeft)"
           aria-label="Previous card (ArrowLeft)"
         >
@@ -277,8 +277,8 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
             onClick={markReview}
             className={`px-3 py-1.5 rounded-xl border text-xs font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
               isReview
-                ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
-                : 'bg-surface-panel hover:bg-surface-hover border-surface-border text-amber-400 opacity-80 hover:opacity-100'
+                ? 'bg-amber-500/20 border-amber-500/40 text-amber-600 dark:text-amber-300'
+                : 'bg-surface-panel hover:bg-surface-hover border-surface-border text-amber-600 dark:text-amber-400 opacity-80 hover:opacity-100'
             }`}
             title="Mark for review"
             aria-label="Mark card for review"
@@ -291,8 +291,8 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
             onClick={markKnown}
             className={`px-3 py-1.5 rounded-xl border text-xs font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 ${
               isKnown
-                ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
-                : 'bg-surface-panel hover:bg-surface-hover border-surface-border text-emerald-400 opacity-80 hover:opacity-100'
+                ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-600 dark:text-emerald-300'
+                : 'bg-surface-panel hover:bg-surface-hover border-surface-border text-emerald-600 dark:text-emerald-400 opacity-80 hover:opacity-100'
             }`}
             title="Mark as known"
             aria-label="Mark card as known"
@@ -304,7 +304,7 @@ export const FlashcardsView: React.FC<FlashcardsViewProps> = ({
         <button
           type="button"
           onClick={handleNext}
-          className="p-2 rounded-xl bg-surface-panel hover:bg-surface-hover border border-surface-border text-xs transition-colors flex items-center gap-1 opacity-80 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="p-2 rounded-xl bg-surface-panel hover:bg-surface-hover border border-surface-border text-xs transition-colors flex items-center gap-1 opacity-80 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           title="Next card (ArrowRight)"
           aria-label="Next card (ArrowRight)"
         >
