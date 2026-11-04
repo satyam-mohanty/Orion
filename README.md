@@ -6,18 +6,18 @@ Orion is a privacy-first, editorial-grade AI research workspace inspired by Goog
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-- 🔒 **Zero API Keys & 100% Offline**: Runs with local Ollama (`llama3.2`, `mistral`, `qwen2.5`, `phi3`) or standalone browser-native RAG.
-- 📚 **Multi-Source Evidence Drawer**: Upload PDFs, Markdown documents, plain text, and custom research notes.
-- 🎯 **Grounded In-Line Citations**: Direct clickable citation markers `[1]`, `[2]` linking back to source passages.
-- 🎙️ **Studio Audio Deep Dives**: Dual-host dialogue podcast generator ("Alex" & "Sam") with real-time waveform visualization, playback controls, and synchronized transcript highlighting.
-- 📝 **Editorial Study Workspace**: Instant Study Guides, Executive Briefings, FAQs, and Research Scratchpad with pinned citations.
-- 🧠 **Kaggle Training Pipeline**: Complete QLoRA 4-bit fine-tuning scripts in `/training` to train your own local Orion model.
+- **Zero API Keys & 100% Offline**: Runs with local Ollama (`llama3.2`, `mistral`, `qwen2.5`, `phi3`) or standalone browser-native RAG.
+- **Multi-Source Evidence Drawer**: Upload PDFs, Markdown documents, plain text, and custom research notes.
+- **Grounded In-Line Citations**: Direct clickable citation markers `[1]`, `[2]` linking back to source passages.
+- **Studio Audio Deep Dives**: Dual-host dialogue podcast generator ("Alex" & "Sam") with real-time waveform visualization, playback controls, and synchronized transcript highlighting.
+- **Editorial Study Workspace**: Instant Study Guides, Executive Briefings, FAQs, and Research Scratchpad with pinned citations.
+- **Kaggle Training Pipeline**: Complete QLoRA 4-bit fine-tuning scripts in `/training` to train your own local Orion model.
 
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ### 1. Launch Frontend
 ```bash
@@ -41,7 +41,7 @@ python main.py
 
 ---
 
-## 📊 Kaggle Datasets & Training Suite
+## Kaggle Datasets & Training Suite
 
 See the full training documentation and scripts in [`training/README.md`](training/README.md).
 
