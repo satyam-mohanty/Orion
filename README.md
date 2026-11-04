@@ -1,4 +1,4 @@
-# Orion — Local AI Research Notebook & Audio Studio
+# Orion — Local AI Research Notebook & Studio
 
 > **100% Local RAG • Zero Cloud API Keys • Dual-Speaker Deep Dives • Verifiable Citations**
 
