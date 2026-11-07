@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
-import os
-import shutil
 from pathlib import Path
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 
-OUTPUT_PATH = Path("/Users/rupamdolui/Orion/Orion/ORION_Updated_Review.pptx")
+OUTPUT_PATH = Path(__file__).resolve().parent / "ORION_Updated_Review.pptx"
 
 # Exact replacements mapped from ORION_Review_2_Final.pptx
 REPLACEMENTS = {
@@ -147,9 +144,9 @@ def replace_in_text_frame(tf):
                         p.runs[0].font.color.rgb = fcolor
 
 def find_template():
+    repo_dir = Path(__file__).resolve().parent
     candidates = [
-        Path("/Users/rupamdolui/Orion/Orion/ORION_Review_2_Final.pptx"),
-        Path("/Users/rupamdolui/Orion/ORION_Review_2_Final.pptx"),
+        repo_dir / "ORION_Review_2_Final.pptx",
         Path.home() / "Downloads" / "ORION_Review_2_Final.pptx",
         Path.home() / "Desktop" / "ORION_Review_2_Final.pptx",
     ]
